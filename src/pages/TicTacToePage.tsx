@@ -14,15 +14,9 @@ function loadGame(searchParams: URLSearchParams): TicTacToeGame | null {
     }
 }
 
-function statusMessage(game: TicTacToeGame): string {
-    if (game.winner === TicTacToeMark.CROSS) return 'X wins!'
-    if (game.winner === TicTacToeMark.CIRCLE) return 'O wins!'
-    if (game.isDraw) return "It's a draw!"
-    return game.nextMark === TicTacToeMark.CROSS ? "X's turn" : "O's turn"
-}
-
 function TicTacToePage() {
     const [searchParams, setSearchParams] = useSearchParams()
+    const [movedThisTurn, setMovedThisTurn] = useState(false)
     const [copied, setCopied] = useState(false)
 
     const game = loadGame(searchParams)
@@ -30,14 +24,17 @@ function TicTacToePage() {
     function startNewGame() {
         const newGame = new TicTacToeGame(3, 3)
         setSearchParams({ game: newGame.encode() })
+        setMovedThisTurn(false)
+        setCopied(false)
     }
 
     function handleCellClick(row: number, col: number) {
-        if (!game || game.isOver) return
+        if (!game || game.isOver || movedThisTurn) return
         try {
             const newGame = TicTacToeGame.decode(searchParams.get('game')!)
             newGame.addMove({ row, col })
             setSearchParams({ game: newGame.encode() })
+            setMovedThisTurn(true)
             setCopied(false)
         } catch {
             // ignore invalid moves
@@ -47,8 +44,40 @@ function TicTacToePage() {
     function handleCopyLink() {
         navigator.clipboard.writeText(window.location.href).then(() => {
             setCopied(true)
-            setTimeout(() => setCopied(false), 2000)
         })
+    }
+
+    function statusMessage(): string {
+        if (!game) return ''
+        if (game.winner === TicTacToeMark.CROSS) return 'X wins!'
+        if (game.winner === TicTacToeMark.CIRCLE) return 'O wins!'
+        if (game.isDraw) return "It's a draw!"
+        return game.nextMark === TicTacToeMark.CROSS ? "X's turn" : "O's turn"
+    }
+
+    function overlay() {
+        if (!game) return undefined
+
+        if (game.isOver) {
+            return (
+                <div style={{ textAlign: 'center', padding: '1rem' }}>
+                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 1rem' }}>
+                        {statusMessage()}
+                    </p>
+                    <Button onClick={startNewGame}>New Game</Button>
+                </div>
+            )
+        }
+
+        if (movedThisTurn) {
+            return (
+                <Button onClick={handleCopyLink}>
+                    {copied ? 'Copied!' : 'Copy & Share'}
+                </Button>
+            )
+        }
+
+        return undefined
     }
 
     return (
@@ -60,14 +89,8 @@ function TicTacToePage() {
                 <Button onClick={startNewGame}>Start New Game</Button>
             ) : (
                 <>
-                    <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{statusMessage(game)}</p>
-
-                    <TicTacToeBoard game={game} onCellClick={handleCellClick} />
-
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                        <Button onClick={handleCopyLink}>{copied ? 'Copied!' : 'Copy Link'}</Button>
-                        <Button onClick={startNewGame}>New Game</Button>
-                    </div>
+                    <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{statusMessage()}</p>
+                    <TicTacToeBoard game={game} onCellClick={handleCellClick} overlay={overlay()} />
                 </>
             )}
         </main>
