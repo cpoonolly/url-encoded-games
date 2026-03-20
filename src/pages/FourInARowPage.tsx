@@ -45,10 +45,12 @@ function FourInARowPage() {
         try {
             const newGame = FourInARowGame.decode(searchParams.get('game')!)
             newGame.addMove({ col })
-            setSearchParams({ game: newGame.encode() })
+            const encoded = newGame.encode()
+            setSearchParams({ game: encoded })
             setAnimationKey(k => k + 1)
             setMovedThisTurn(true)
-            setCopied(false)
+            const url = `${window.location.origin}${window.location.pathname}?game=${encoded}`
+            navigator.clipboard.writeText(url).then(() => setCopied(true))
         } catch {
             // ignore invalid moves (e.g. full column)
         }
@@ -91,7 +93,7 @@ function FourInARowPage() {
                     {showButtons && (
                         <div className="flex flex-col gap-3">
                             <Button onClick={handleCopyLink}>
-                                {copied ? 'Copied!' : 'Copy & Share'}
+                                {copied ? 'Copied! Send to opponent!' : 'Copy & Share'}
                             </Button>
                             {game.isOver && (
                                 <Button onClick={startNewGame}>New Game</Button>
