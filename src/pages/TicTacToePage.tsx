@@ -71,7 +71,7 @@ function TicTacToePage() {
 
         if (movedThisTurn) {
             return (
-                <Button onClick={handleCopyLink}>
+                <Button onClick={handleCopyLink} style={{ backgroundColor: 'var(--bg)' }}>
                     {copied ? 'Copied!' : 'Copy & Share'}
                 </Button>
             )
