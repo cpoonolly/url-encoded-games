@@ -18,6 +18,7 @@ function FourInARowPage() {
     const [searchParams, setSearchParams] = useSearchParams()
     const [movedThisTurn, setMovedThisTurn] = useState(false)
     const [copied, setCopied] = useState(false)
+    const [lastMove, setLastMove] = useState<{ row: number; col: number } | undefined>()
 
     const game = loadGame(searchParams)
 
@@ -26,6 +27,7 @@ function FourInARowPage() {
         setSearchParams({ game: newGame.encode() })
         setMovedThisTurn(false)
         setCopied(false)
+        setLastMove(undefined)
     }
 
     function handleColClick(col: number) {
@@ -33,7 +35,13 @@ function FourInARowPage() {
         try {
             const newGame = FourInARowGame.decode(searchParams.get('game')!)
             newGame.addMove({ col })
+            // Find the lowest filled cell in this column — that's where the chip landed
+            let landedRow = 0
+            for (let r = newGame.board.length - 1; r >= 0; r--) {
+                if (newGame.board[r][col] !== null) { landedRow = r; break }
+            }
             setSearchParams({ game: newGame.encode() })
+            setLastMove({ row: landedRow, col })
             setMovedThisTurn(true)
             setCopied(false)
         } catch {
@@ -72,6 +80,7 @@ function FourInARowPage() {
                         game={game}
                         onColClick={handleColClick}
                         overlay={showOverlay ? true : undefined}
+                        lastMove={lastMove}
                     />
                     {showButtons && (
                         <div className="flex flex-col gap-3">
