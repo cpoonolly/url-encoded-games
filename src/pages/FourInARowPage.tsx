@@ -14,20 +14,30 @@ function loadGame(searchParams: URLSearchParams): FourInARowGame | null {
     }
 }
 
+function getLastMove(game: FourInARowGame): { row: number; col: number } | undefined {
+    if (game.moves.length === 0) return undefined
+    const col = game.moves[game.moves.length - 1].col
+    // Find the topmost filled cell in the column (that's where the last chip is)
+    for (let r = 0; r < game.board.length; r++) {
+        if (game.board[r][col] !== null) return { row: r, col }
+    }
+    return undefined
+}
+
 function FourInARowPage() {
     const [searchParams, setSearchParams] = useSearchParams()
     const [movedThisTurn, setMovedThisTurn] = useState(false)
     const [copied, setCopied] = useState(false)
-    const [lastMove, setLastMove] = useState<{ row: number; col: number } | undefined>()
+    const [animationKey, setAnimationKey] = useState(0)
 
     const game = loadGame(searchParams)
+    const lastMove = game ? getLastMove(game) : undefined
 
     function startNewGame() {
         const newGame = new FourInARowGame()
         setSearchParams({ game: newGame.encode() })
         setMovedThisTurn(false)
         setCopied(false)
-        setLastMove(undefined)
     }
 
     function handleColClick(col: number) {
@@ -35,13 +45,8 @@ function FourInARowPage() {
         try {
             const newGame = FourInARowGame.decode(searchParams.get('game')!)
             newGame.addMove({ col })
-            // Find the lowest filled cell in this column — that's where the chip landed
-            let landedRow = 0
-            for (let r = newGame.board.length - 1; r >= 0; r--) {
-                if (newGame.board[r][col] !== null) { landedRow = r; break }
-            }
             setSearchParams({ game: newGame.encode() })
-            setLastMove({ row: landedRow, col })
+            setAnimationKey(k => k + 1)
             setMovedThisTurn(true)
             setCopied(false)
         } catch {
@@ -77,6 +82,7 @@ function FourInARowPage() {
                 <>
                     <p className="text-xl font-bold">{statusMessage()}</p>
                     <FourInARowBoard
+                        key={animationKey}
                         game={game}
                         onColClick={handleColClick}
                         overlay={showOverlay ? true : undefined}
