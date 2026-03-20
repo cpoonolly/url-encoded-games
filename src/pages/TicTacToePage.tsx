@@ -55,28 +55,8 @@ function TicTacToePage() {
         return game.nextMark === TicTacToeMark.CROSS ? "X's turn" : "O's turn"
     }
 
-    function overlay() {
-        if (!game) return undefined
-
-        if (game.isOver) {
-            return (
-                <div className="text-center p-4">
-                    <p className="text-2xl font-bold mb-4">{statusMessage()}</p>
-                    <Button onClick={startNewGame}>New Game</Button>
-                </div>
-            )
-        }
-
-        if (movedThisTurn) {
-            return (
-                <Button onClick={handleCopyLink} className="bg-[var(--bg)]">
-                    {copied ? 'Copied!' : 'Copy & Share'}
-                </Button>
-            )
-        }
-
-        return undefined
-    }
+    const showOverlay = game && (game.isOver || movedThisTurn)
+    const showButtons = game && (game.isOver || movedThisTurn)
 
     return (
         <main className="px-8 py-8 max-w-sm mx-auto">
@@ -88,7 +68,21 @@ function TicTacToePage() {
             ) : (
                 <>
                     <p className="text-xl font-bold">{statusMessage()}</p>
-                    <TicTacToeBoard game={game} onCellClick={handleCellClick} overlay={overlay()} />
+                    <TicTacToeBoard
+                        game={game}
+                        onCellClick={handleCellClick}
+                        overlay={showOverlay ? true : undefined}
+                    />
+                    {showButtons && (
+                        <div className="flex flex-col gap-3">
+                            <Button onClick={handleCopyLink}>
+                                {copied ? 'Copied!' : 'Copy & Share'}
+                            </Button>
+                            {game.isOver && (
+                                <Button onClick={startNewGame}>New Game</Button>
+                            )}
+                        </div>
+                    )}
                 </>
             )}
         </main>

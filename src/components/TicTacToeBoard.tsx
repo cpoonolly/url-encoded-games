@@ -1,4 +1,3 @@
-import { ReactNode } from 'react'
 import { TicTacToeGame, TicTacToeMark } from '../games/TicTacToe'
 
 function CrossMark() {
@@ -21,7 +20,7 @@ function CircleMark() {
 interface TicTacToeBoardProps {
     game: TicTacToeGame
     onCellClick: (row: number, col: number) => void
-    overlay?: ReactNode
+    overlay?: boolean
 }
 
 function TicTacToeBoard({ game, onCellClick, overlay }: TicTacToeBoardProps) {
@@ -55,9 +54,7 @@ function TicTacToeBoard({ game, onCellClick, overlay }: TicTacToeBoardProps) {
             </div>
 
             {overlay && (
-                <div className="absolute inset-0 bg-black/55 rounded-lg flex items-center justify-center">
-                    {overlay}
-                </div>
+                <div className="absolute inset-0 bg-black/75 rounded-lg" />
             )}
         </div>
     )
