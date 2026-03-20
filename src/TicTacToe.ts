@@ -18,6 +18,9 @@ export class TicTacToeGame {
     winner: TicTacToeMark | null = null;
 
     constructor(rows = 3, cols = 3) {
+        if (rows < 3 || cols < 3) {
+            throw new Error(`Board must be at least 3x3, got ${rows}x${cols}`);
+        }
         this.rowCount = rows;
         this.colCount = cols;
         this.moves = [];
@@ -94,21 +97,26 @@ export class TicTacToeGame {
         const mark = this.board[row][col];
         if (mark === null) return null;
 
-        const lines = [
-            // row
-            Array.from({ length: this.colCount }, (_, c) => this.board[row][c]),
-            // col
-            Array.from({ length: this.rowCount }, (_, r) => this.board[r][col]),
-            // main diagonal (only if on it)
-            ...(row === col
-                ? [Array.from({ length: Math.min(this.rowCount, this.colCount) }, (_, i) => this.board[i][i])]
-                : []),
-            // anti diagonal (only if on it)
-            ...(row + col === this.colCount - 1
-                ? [Array.from({ length: Math.min(this.rowCount, this.colCount) }, (_, i) => this.board[i][this.colCount - 1 - i])]
-                : []),
+        const directions = [
+            { dr: 0, dc: 1 },   // horizontal
+            { dr: 1, dc: 0 },   // vertical
+            { dr: 1, dc: 1 },   // diagonal
+            { dr: 1, dc: -1 },  // anti-diagonal
         ];
 
-        return lines.some(line => line.every(cell => cell === mark)) ? mark : null;
+        for (const { dr, dc } of directions) {
+            // Check all windows of 3 that include (row, col) in this direction
+            for (let offset = -2; offset <= 0; offset++) {
+                const cells = [0, 1, 2].map(i => {
+                    const r = row + (offset + i) * dr;
+                    const c = col + (offset + i) * dc;
+                    if (r < 0 || r >= this.rowCount || c < 0 || c >= this.colCount) return null;
+                    return this.board[r][c];
+                });
+                if (cells.every(cell => cell === mark)) return mark;
+            }
+        }
+
+        return null;
     }
 }

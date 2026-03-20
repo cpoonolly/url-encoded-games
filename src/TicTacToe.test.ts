@@ -18,9 +18,17 @@ describe('TicTacToeGame', () => {
         });
 
         it('supports non-square boards', () => {
-            const game = new TicTacToeGame(2, 4);
-            expect(game.board.length).toBe(2);
-            expect(game.board[0].length).toBe(4);
+            const game = new TicTacToeGame(3, 5);
+            expect(game.board.length).toBe(3);
+            expect(game.board[0].length).toBe(5);
+        });
+
+        it('throws if rows < 3', () => {
+            expect(() => new TicTacToeGame(2, 3)).toThrow('at least 3x3');
+        });
+
+        it('throws if cols < 3', () => {
+            expect(() => new TicTacToeGame(3, 2)).toThrow('at least 3x3');
         });
     });
 
@@ -113,6 +121,35 @@ describe('TicTacToeGame', () => {
             game.addMove({ row: 1, col: 1 });
             expect(game.winner).toBeNull();
         });
+
+        it('detects a row win on a non-square board (3x5)', () => {
+            const game = new TicTacToeGame(3, 5);
+            game.addMove({ row: 0, col: 2 }); // X
+            game.addMove({ row: 1, col: 0 }); // O
+            game.addMove({ row: 0, col: 3 }); // X
+            game.addMove({ row: 1, col: 1 }); // O
+            game.addMove({ row: 0, col: 4 }); // X wins cols 2-4 of row 0
+            expect(game.winner).toBe(TicTacToeMark.CROSS);
+        });
+
+        it('detects a diagonal win on a non-square board (3x5)', () => {
+            const game = new TicTacToeGame(3, 5);
+            game.addMove({ row: 0, col: 2 }); // X
+            game.addMove({ row: 0, col: 0 }); // O
+            game.addMove({ row: 1, col: 3 }); // X
+            game.addMove({ row: 1, col: 0 }); // O
+            game.addMove({ row: 2, col: 4 }); // X wins diagonal (0,2)-(1,3)-(2,4)
+            expect(game.winner).toBe(TicTacToeMark.CROSS);
+        });
+
+        it('does not detect diagonal win on a 3x3 board that needs 4 in a row', () => {
+            // sanity check: 2 in a row is not a win
+            const game = new TicTacToeGame();
+            game.addMove({ row: 0, col: 0 }); // X
+            game.addMove({ row: 0, col: 2 }); // O
+            game.addMove({ row: 1, col: 1 }); // X
+            expect(game.winner).toBeNull();
+        });
     });
 
     describe('isDraw / isOver', () => {
@@ -179,12 +216,16 @@ describe('TicTacToeGame', () => {
         });
 
         it('round-trips a non-square board', () => {
-            const game = new TicTacToeGame(2, 4);
-            game.addMove({ row: 0, col: 3 });
+            const game = new TicTacToeGame(3, 5);
+            game.addMove({ row: 0, col: 4 });
             const decoded = TicTacToeGame.decode(game.encode());
-            expect(decoded.rowCount).toBe(2);
-            expect(decoded.colCount).toBe(4);
-            expect(decoded.board[0][3]).toBe(TicTacToeMark.CROSS);
+            expect(decoded.rowCount).toBe(3);
+            expect(decoded.colCount).toBe(5);
+            expect(decoded.board[0][4]).toBe(TicTacToeMark.CROSS);
+        });
+
+        it('throws on board smaller than 3x3 in encoded string', () => {
+            expect(() => TicTacToeGame.decode('2-3')).toThrow('at least 3x3');
         });
 
         it('throws on too-short encoded string', () => {
