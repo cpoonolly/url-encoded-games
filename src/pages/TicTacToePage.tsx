@@ -60,10 +60,8 @@ function TicTacToePage() {
 
         if (game.isOver) {
             return (
-                <div style={{ textAlign: 'center', padding: '1rem' }}>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 1rem' }}>
-                        {statusMessage()}
-                    </p>
+                <div className="text-center p-4">
+                    <p className="text-2xl font-bold mb-4">{statusMessage()}</p>
                     <Button onClick={startNewGame}>New Game</Button>
                 </div>
             )
@@ -71,7 +69,7 @@ function TicTacToePage() {
 
         if (movedThisTurn) {
             return (
-                <Button onClick={handleCopyLink} style={{ backgroundColor: 'var(--bg)' }}>
+                <Button onClick={handleCopyLink} className="bg-[var(--bg)]">
                     {copied ? 'Copied!' : 'Copy & Share'}
                 </Button>
             )
@@ -81,7 +79,7 @@ function TicTacToePage() {
     }
 
     return (
-        <main style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto' }}>
+        <main className="px-8 py-8 max-w-sm mx-auto">
             <Link to="/">← Back</Link>
             <h1>Tic Tac Toe</h1>
 
@@ -89,7 +87,7 @@ function TicTacToePage() {
                 <Button onClick={startNewGame}>Start New Game</Button>
             ) : (
                 <>
-                    <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{statusMessage()}</p>
+                    <p className="text-xl font-bold">{statusMessage()}</p>
                     <TicTacToeBoard game={game} onCellClick={handleCellClick} overlay={overlay()} />
                 </>
             )}

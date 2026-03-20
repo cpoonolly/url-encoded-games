@@ -30,7 +30,7 @@ function TicTacToeBoard({ game, onCellClick, overlay }: TicTacToeBoardProps) {
     const SIZE = CELL * 3 + GAP * 2
 
     return (
-        <div style={{ position: 'relative', width: SIZE, margin: '1.5rem 0' }}>
+        <div className="relative my-6" style={{ width: SIZE }}>
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: `repeat(3, ${CELL}px)`,
@@ -44,17 +44,7 @@ function TicTacToeBoard({ game, onCellClick, overlay }: TicTacToeBoardProps) {
                             <button
                                 key={`${r}-${c}`}
                                 onClick={() => clickable && onCellClick(r, c)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    background: 'transparent',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    borderRadius: '8px',
-                                    cursor: clickable ? 'pointer' : 'default',
-                                    color: 'inherit',
-                                    padding: 0,
-                                }}
+                                className={`flex items-center justify-center bg-transparent border border-white/20 rounded-lg p-0 text-inherit ${clickable ? 'cursor-pointer' : 'cursor-default'}`}
                             >
                                 {cell === TicTacToeMark.CROSS && <CrossMark />}
                                 {cell === TicTacToeMark.CIRCLE && <CircleMark />}
@@ -65,15 +55,7 @@ function TicTacToeBoard({ game, onCellClick, overlay }: TicTacToeBoardProps) {
             </div>
 
             {overlay && (
-                <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'rgba(0,0,0,0.55)',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
+                <div className="absolute inset-0 bg-black/55 rounded-lg flex items-center justify-center">
                     {overlay}
                 </div>
             )}
