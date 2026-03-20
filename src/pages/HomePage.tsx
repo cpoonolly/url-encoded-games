@@ -18,14 +18,14 @@ function HomePage() {
             style={{
               display: 'block',
               padding: '1.5rem',
-              border: '1px solid #ccc',
+              border: '1px solid rgba(255,255,255,0.2)',
               borderRadius: '8px',
               textDecoration: 'none',
               color: 'inherit',
             }}
           >
             <h2 style={{ margin: '0 0 0.5rem' }}>{game.name}</h2>
-            <p style={{ margin: 0, color: '#666' }}>{game.description}</p>
+            <p style={{ margin: 0, color: 'rgba(255,255,255,0.5)' }}>{game.description}</p>
           </Link>
         ))}
       </div>

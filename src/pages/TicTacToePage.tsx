@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { TicTacToeGame, TicTacToeMark } from '../games/TicTacToe'
+import TicTacToeBoard from '../components/TicTacToeBoard'
+import Button from '../components/Button'
 
 function loadGame(searchParams: URLSearchParams): TicTacToeGame | null {
     const encoded = searchParams.get('game')
@@ -10,6 +12,13 @@ function loadGame(searchParams: URLSearchParams): TicTacToeGame | null {
     } catch {
         return null
     }
+}
+
+function statusMessage(game: TicTacToeGame): string {
+    if (game.winner === TicTacToeMark.CROSS) return 'X wins!'
+    if (game.winner === TicTacToeMark.CIRCLE) return 'O wins!'
+    if (game.isDraw) return "It's a draw!"
+    return game.nextMark === TicTacToeMark.CROSS ? "X's turn" : "O's turn"
 }
 
 function TicTacToePage() {
@@ -36,19 +45,10 @@ function TicTacToePage() {
     }
 
     function handleCopyLink() {
-        const url = window.location.href
-        navigator.clipboard.writeText(url).then(() => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
         })
-    }
-
-    function statusMessage() {
-        if (!game) return ''
-        if (game.winner === TicTacToeMark.CROSS) return '✕ wins!'
-        if (game.winner === TicTacToeMark.CIRCLE) return '○ wins!'
-        if (game.isDraw) return "It's a draw!"
-        return game.nextMark === TicTacToeMark.CROSS ? '✕\'s turn' : '○\'s turn'
     }
 
     return (
@@ -57,43 +57,16 @@ function TicTacToePage() {
             <h1>Tic Tac Toe</h1>
 
             {!game ? (
-                <button onClick={startNewGame}>Start New Game</button>
+                <Button onClick={startNewGame}>Start New Game</Button>
             ) : (
                 <>
-                    <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{statusMessage()}</p>
+                    <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{statusMessage(game)}</p>
 
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 100px)',
-                        gridTemplateRows: 'repeat(3, 100px)',
-                        gap: '4px',
-                        margin: '1rem 0',
-                    }}>
-                        {game.board.map((row, r) =>
-                            row.map((cell, c) => (
-                                <button
-                                    key={`${r}-${c}`}
-                                    onClick={() => handleCellClick(r, c)}
-                                    disabled={cell !== null || game.isOver}
-                                    style={{
-                                        fontSize: '2.5rem',
-                                        cursor: cell !== null || game.isOver ? 'default' : 'pointer',
-                                        background: '#f5f5f5',
-                                        border: '2px solid #ccc',
-                                        borderRadius: '4px',
-                                    }}
-                                >
-                                    {cell === TicTacToeMark.CROSS ? '✕' : cell === TicTacToeMark.CIRCLE ? '○' : ''}
-                                </button>
-                            ))
-                        )}
-                    </div>
+                    <TicTacToeBoard game={game} onCellClick={handleCellClick} />
 
                     <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                        <button onClick={handleCopyLink}>
-                            {copied ? 'Copied!' : 'Copy Link'}
-                        </button>
-                        <button onClick={startNewGame}>New Game</button>
+                        <Button onClick={handleCopyLink}>{copied ? 'Copied!' : 'Copy Link'}</Button>
+                        <Button onClick={startNewGame}>New Game</Button>
                     </div>
                 </>
             )}
